@@ -37,80 +37,60 @@ LifeSignal detects **life-event signals** from customer transaction patterns and
 ### High-Level Architecture
 
 ```mermaid
-flowchart TB
-    subgraph DATA["📊 Data Layer"]
-        PG[("PostgreSQL<br/>Transaction Data")]
-    end
-    
-    subgraph ML["🔍 Signal Detection"]
-        XGB["XGBoost<br/>+ Rules"]
-    end
-    
-    subgraph AGENT["🤖 LangGraph Agent"]
-        AGENT_CORE["Agent Loop<br/>Orchestrator"]
-        
-        subgraph TOOLS["Agent Tools"]
-            RAG["RAG Lookup<br/>ChromaDB"]
-            PROFILE["Profile Fetcher"]
-            MSG["Message Generator<br/>GPT-4o"]
-            COMP["Compliance Checker"]
-            ROUTER["Channel Router"]
-            TRACK["Feedback Tracker"]
-        end
-    end
-    
-    subgraph INFRA["⚡ Infrastructure"]
-        REDIS[("Redis Queue")]
-    end
+graph TB
+    PG[PostgreSQL<br/>Transaction Data]
+    XGB[XGBoost + Rules<br/>Signal Detection]
+    AGENT[LangGraph Agent Loop]
+    RAG[RAG Lookup<br/>ChromaDB]
+    PROFILE[Profile Fetcher]
+    MSG[Message Generator<br/>GPT-4o]
+    COMP[Compliance Checker]
+    ROUTER[Channel Router]
+    TRACK[Feedback Tracker]
+    REDIS[Redis Queue]
     
     PG --> XGB
-    XGB --> AGENT_CORE
-    AGENT_CORE --> RAG
-    AGENT_CORE --> PROFILE
-    AGENT_CORE --> MSG
-    AGENT_CORE --> COMP
-    AGENT_CORE --> ROUTER
-    AGENT_CORE --> TRACK
+    XGB --> AGENT
+    AGENT --> RAG
+    AGENT --> PROFILE
+    AGENT --> MSG
+    AGENT --> COMP
+    AGENT --> ROUTER
+    AGENT --> TRACK
     COMP -.-> MSG
     ROUTER --> REDIS
     
-    style DATA fill:#e3f2fd,stroke:#1565C0,stroke-width:3px
-    style ML fill:#fff3e0,stroke:#E65100,stroke-width:3px
+    style PG fill:#e3f2fd,stroke:#1565C0,stroke-width:3px
+    style XGB fill:#fff3e0,stroke:#E65100,stroke-width:3px
     style AGENT fill:#f3e5f5,stroke:#6A1B9A,stroke-width:3px
-    style TOOLS fill:#e8f5e9,stroke:#2E7D32,stroke-width:2px
-    style INFRA fill:#fce4ec,stroke:#AD1457,stroke-width:3px
-    
-    style PG fill:#BBDEFB,stroke:#1565C0,stroke-width:2px
-    style XGB fill:#FFE0B2,stroke:#E65100,stroke-width:2px
-    style AGENT_CORE fill:#E1BEE7,stroke:#6A1B9A,stroke-width:2px
-    style RAG fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px
-    style PROFILE fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px
-    style MSG fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px
-    style COMP fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px
-    style ROUTER fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px
-    style TRACK fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px
-    style REDIS fill:#F8BBD0,stroke:#AD1457,stroke-width:2px
+    style RAG fill:#e8f5e9,stroke:#2E7D32,stroke-width:2px
+    style PROFILE fill:#e8f5e9,stroke:#2E7D32,stroke-width:2px
+    style MSG fill:#e8f5e9,stroke:#2E7D32,stroke-width:2px
+    style COMP fill:#e8f5e9,stroke:#2E7D32,stroke-width:2px
+    style ROUTER fill:#e8f5e9,stroke:#2E7D32,stroke-width:2px
+    style TRACK fill:#e8f5e9,stroke:#2E7D32,stroke-width:2px
+    style REDIS fill:#fce4ec,stroke:#AD1457,stroke-width:3px
 ```
 
 ### Agent Workflow Flow
 
 ```mermaid
-flowchart LR
-    A["1. RAG Lookup"] --> B["2. Profile Fetcher"]
-    B --> C["3. Message Generator"]
-    C --> D{"4. Compliance Check"}
-    D -->|Pass| E["5. Channel Router"]
+graph LR
+    A[RAG Lookup] --> B[Profile Fetcher]
+    B --> C[Message Generator]
+    C --> D{Compliance Check}
+    D -->|Pass| E[Channel Router]
     D -->|Fail| C
-    E --> F["6. Feedback Tracker"]
-    F --> G["7. Redis Queue"]
+    E --> F[Feedback Tracker]
+    F --> G[Redis Queue]
     
-    style A fill:#4CAF50,stroke:#1B5E20,stroke-width:3px,color:#fff
-    style B fill:#2196F3,stroke:#0D47A1,stroke-width:3px,color:#fff
-    style C fill:#FF9800,stroke:#E65100,stroke-width:3px,color:#fff
-    style D fill:#9C27B0,stroke:#4A148C,stroke-width:3px,color:#fff
-    style E fill:#00BCD4,stroke:#006064,stroke-width:3px,color:#fff
-    style F fill:#795548,stroke:#3E2723,stroke-width:3px,color:#fff
-    style G fill:#607D8B,stroke:#263238,stroke-width:3px,color:#fff
+    style A fill:#4CAF50,stroke:#1B5E20,stroke-width:3px
+    style B fill:#2196F3,stroke:#0D47A1,stroke-width:3px
+    style C fill:#FF9800,stroke:#E65100,stroke-width:3px
+    style D fill:#9C27B0,stroke:#4A148C,stroke-width:3px
+    style E fill:#00BCD4,stroke:#006064,stroke-width:3px
+    style F fill:#795548,stroke:#3E2723,stroke-width:3px
+    style G fill:#607D8B,stroke:#263238,stroke-width:3px
 ```
 
 </div>
