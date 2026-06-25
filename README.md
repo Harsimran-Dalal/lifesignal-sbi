@@ -38,50 +38,93 @@ LifeSignal detects **life-event signals** from customer transaction patterns and
 
 ```mermaid
 graph TB
-    A[📊 Transaction Data<br/>PostgreSQL] --> B[🔍 Signal Detection<br/>XGBoost + Rules]
-    B --> C[🤖 LangGraph Agent Loop]
+    subgraph Data_Layer["📊 DATA LAYER"]
+        A[["� Transaction Data<br/><b>PostgreSQL</b><br/>Customer Transactions"]]
+    end
     
-    C --> D[📚 RAG Lookup<br/>ChromaDB]
-    C --> E[👤 Profile Fetcher]
-    C --> F[💬 Message Generator<br/>GPT-4o]
-    C --> G[✅ Compliance Checker]
-    C --> H[📱 Channel Router]
-    C --> I[📈 Feedback Tracker]
+    subgraph Processing_Layer["🔍 PROCESSING LAYER"]
+        B[["🎯 Signal Detection<br/><b>XGBoost + Rules</b><br/>Hybrid ML Engine"]]
+    end
     
-    G -->|Retry max 2| F
-    H --> J[📨 Redis Queue]
+    subgraph Agent_Layer["🤖 AGENT LAYER"]
+        C[["🧠 LangGraph Agent Loop<br/><b>Orchestration Core</b><br/>Stateful Workflow"]]
+    end
     
-    style A fill:#e1f5ff
-    style B fill:#fff4e1
-    style C fill:#f0e1ff
-    style D fill:#e1ffe1
-    style E fill:#ffe1f0
-    style F fill:#f0ffe1
-    style G fill:#ffe1e1
-    style H fill:#e1f0ff
-    style I fill:#f5f5f5
-    style J fill:#ffe1cc
+    subgraph Tools_Layer["🔧 AGENT TOOLS"]
+        D[["📚 RAG Lookup<br/><b>ChromaDB</b><br/>Vector Search"]]
+        E[["👤 Profile Fetcher<br/><b>Customer Data</b><br/>Profile Retrieval"]]
+        F[["💬 Message Generator<br/><b>GPT-4o</b><br/>AI Content Creation"]]
+        G[["✅ Compliance Checker<br/><b>Rules Engine</b><br/>Regulatory Validation"]]
+        H[["📱 Channel Router<br/><b>Multi-Channel</b><br/>WhatsApp/YONO"]]
+        I[["📈 Feedback Tracker<br/><b>Analytics</b><br/>Outcome Logging"]]
+    end
+    
+    subgraph Infrastructure["⚡ INFRASTRUCTURE"]
+        J[["📨 Redis Queue<br/><b>Event Queue</b><br/>Async Processing"]]
+    end
+    
+    A --> B
+    B --> C
+    C --> D
+    C --> E
+    C --> F
+    C --> G
+    C --> H
+    C --> I
+    G -.->|🔄 Retry Max 2| F
+    H --> J
+    
+    style Data_Layer fill:#e3f2fd,stroke:#1976d2,stroke-width:3px
+    style Processing_Layer fill:#fff3e0,stroke:#f57c00,stroke-width:3px
+    style Agent_Layer fill:#f3e5f5,stroke:#7b1fa2,stroke-width:3px
+    style Tools_Layer fill:#e8f5e9,stroke:#388e3c,stroke-width:3px
+    style Infrastructure fill:#fce4ec,stroke:#c2185b,stroke-width:3px
+    
+    style A fill:#bbdefb,stroke:#1976d2,stroke-width:2px,color:#0d47a1
+    style B fill:#ffe0b2,stroke:#f57c00,stroke-width:2px,color:#e65100
+    style C fill:#e1bee7,stroke:#7b1fa2,stroke-width:2px,color:#4a148c
+    style D fill:#c8e6c9,stroke:#388e3c,stroke-width:2px,color:#1b5e20
+    style E fill:#c8e6c9,stroke:#388e3c,stroke-width:2px,color:#1b5e20
+    style F fill:#c8e6c9,stroke:#388e3c,stroke-width:2px,color:#1b5e20
+    style G fill:#c8e6c9,stroke:#388e3c,stroke-width:2px,color:#1b5e20
+    style H fill:#c8e6c9,stroke:#388e3c,stroke-width:2px,color:#1b5e20
+    style I fill:#c8e6c9,stroke:#388e3c,stroke-width:2px,color:#1b5e20
+    style J fill:#f8bbd9,stroke:#c2185b,stroke-width:2px,color:#880e4f
 ```
 
 ### Agent Workflow Flow
 
 ```mermaid
 graph LR
-    A[RAG Lookup] --> B[Profile Fetcher]
-    B --> C[Message Generator]
-    C --> D{Compliance Check}
-    D -->|✅ Pass| E[Channel Router]
-    D -->|❌ Fail| C
-    E --> F[Feedback Tracker]
-    F --> G[Redis Queue]
+    subgraph Workflow["🔄 AGENT WORKFLOW PIPELINE"]
+        A[["📚 Step 1<br/><b>RAG Lookup</b><br/>Retrieve Product Info"]]
+        B[["👤 Step 2<br/><b>Profile Fetcher</b><br/>Get Customer Data"]]
+        C[["💬 Step 3<br/><b>Message Generator</b><br/>Create Personalized Message"]]
+        D{["✅ Step 4<br/><b>Compliance Check</b><br/>Validate Regulatory Rules"]}
+        E[["📱 Step 5<br/><b>Channel Router</b><br/>Route to WhatsApp/YONO"]]
+        F[["📈 Step 6<br/><b>Feedback Tracker</b><br/>Log Nudge Outcome"]]
+        G[["📨 Step 7<br/><b>Redis Queue</b><br/>Queue for Delivery"]]
+    end
     
-    style A fill:#4CAF50,color:#fff
-    style B fill:#2196F3,color:#fff
-    style C fill:#FF9800,color:#fff
-    style D fill:#9C27B0,color:#fff
-    style E fill:#00BCD4,color:#fff
-    style F fill:#795548,color:#fff
-    style G fill:#607D8B,color:#fff
+    A --> B
+    B --> C
+    C --> D
+    D -->|✅ PASS| E
+    D -->|❌ FAIL| C
+    E --> F
+    F --> G
+    
+    style Workflow fill:#fafafa,stroke:#333,stroke-width:2px
+    
+    style A fill:#4CAF50,stroke:#2E7D32,stroke-width:3px,color:#white,font-weight:bold
+    style B fill:#2196F3,stroke:#1565C0,stroke-width:3px,color:#white,font-weight:bold
+    style C fill:#FF9800,stroke:#E65100,stroke-width:3px,color:#white,font-weight:bold
+    style D fill:#9C27B0,stroke:#6A1B9A,stroke-width:3px,color:#white,font-weight:bold
+    style E fill:#00BCD4,stroke:#00838F,stroke-width:3px,color:#white,font-weight:bold
+    style F fill:#795548,stroke:#4E342E,stroke-width:3px,color:#white,font-weight:bold
+    style G fill:#607D8B,stroke:#37474F,stroke-width:3px,color:#white,font-weight:bold
+    
+    linkStyle default stroke-width:2px,fill:none,stroke:#333
 ```
 
 </div>
