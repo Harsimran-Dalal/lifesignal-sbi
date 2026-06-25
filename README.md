@@ -320,11 +320,3 @@ This project was built for the **SBI Hackathon 2025**. For demo/prototype use on
 <div align="center">
 
 ---
-
-**Built with ❤️ by Team Harsimran Singh Dalal & Sparsh Bhaskar**
-
-**Thapar Institute of Engineering and Technology**
-
-[![GitHub](https://img.shields.io/badge/GitHub-Harsimran--Dalal-blue.svg)](https://github.com/Harsimran-Dalal)
-
-</div>
