@@ -37,94 +37,80 @@ LifeSignal detects **life-event signals** from customer transaction patterns and
 ### High-Level Architecture
 
 ```mermaid
-graph TB
-    subgraph Data_Layer["📊 DATA LAYER"]
-        A[["� Transaction Data<br/><b>PostgreSQL</b><br/>Customer Transactions"]]
+flowchart TB
+    subgraph DATA["📊 Data Layer"]
+        PG[("PostgreSQL<br/>Transaction Data")]
     end
     
-    subgraph Processing_Layer["🔍 PROCESSING LAYER"]
-        B[["🎯 Signal Detection<br/><b>XGBoost + Rules</b><br/>Hybrid ML Engine"]]
+    subgraph ML["🔍 Signal Detection"]
+        XGB["XGBoost<br/>+ Rules"]
     end
     
-    subgraph Agent_Layer["🤖 AGENT LAYER"]
-        C[["🧠 LangGraph Agent Loop<br/><b>Orchestration Core</b><br/>Stateful Workflow"]]
+    subgraph AGENT["🤖 LangGraph Agent"]
+        AGENT_CORE["Agent Loop<br/>Orchestrator"]
+        
+        subgraph TOOLS["Agent Tools"]
+            RAG["RAG Lookup<br/>ChromaDB"]
+            PROFILE["Profile Fetcher"]
+            MSG["Message Generator<br/>GPT-4o"]
+            COMP["Compliance Checker"]
+            ROUTER["Channel Router"]
+            TRACK["Feedback Tracker"]
+        end
     end
     
-    subgraph Tools_Layer["🔧 AGENT TOOLS"]
-        D[["📚 RAG Lookup<br/><b>ChromaDB</b><br/>Vector Search"]]
-        E[["👤 Profile Fetcher<br/><b>Customer Data</b><br/>Profile Retrieval"]]
-        F[["💬 Message Generator<br/><b>GPT-4o</b><br/>AI Content Creation"]]
-        G[["✅ Compliance Checker<br/><b>Rules Engine</b><br/>Regulatory Validation"]]
-        H[["📱 Channel Router<br/><b>Multi-Channel</b><br/>WhatsApp/YONO"]]
-        I[["📈 Feedback Tracker<br/><b>Analytics</b><br/>Outcome Logging"]]
+    subgraph INFRA["⚡ Infrastructure"]
+        REDIS[("Redis Queue")]
     end
     
-    subgraph Infrastructure["⚡ INFRASTRUCTURE"]
-        J[["📨 Redis Queue<br/><b>Event Queue</b><br/>Async Processing"]]
-    end
+    PG --> XGB
+    XGB --> AGENT_CORE
+    AGENT_CORE --> RAG
+    AGENT_CORE --> PROFILE
+    AGENT_CORE --> MSG
+    AGENT_CORE --> COMP
+    AGENT_CORE --> ROUTER
+    AGENT_CORE --> TRACK
+    COMP -.-> MSG
+    ROUTER --> REDIS
     
-    A --> B
-    B --> C
-    C --> D
-    C --> E
-    C --> F
-    C --> G
-    C --> H
-    C --> I
-    G -.->|🔄 Retry Max 2| F
-    H --> J
+    style DATA fill:#e3f2fd,stroke:#1565C0,stroke-width:3px
+    style ML fill:#fff3e0,stroke:#E65100,stroke-width:3px
+    style AGENT fill:#f3e5f5,stroke:#6A1B9A,stroke-width:3px
+    style TOOLS fill:#e8f5e9,stroke:#2E7D32,stroke-width:2px
+    style INFRA fill:#fce4ec,stroke:#AD1457,stroke-width:3px
     
-    style Data_Layer fill:#e3f2fd,stroke:#1976d2,stroke-width:3px
-    style Processing_Layer fill:#fff3e0,stroke:#f57c00,stroke-width:3px
-    style Agent_Layer fill:#f3e5f5,stroke:#7b1fa2,stroke-width:3px
-    style Tools_Layer fill:#e8f5e9,stroke:#388e3c,stroke-width:3px
-    style Infrastructure fill:#fce4ec,stroke:#c2185b,stroke-width:3px
-    
-    style A fill:#bbdefb,stroke:#1976d2,stroke-width:2px,color:#0d47a1
-    style B fill:#ffe0b2,stroke:#f57c00,stroke-width:2px,color:#e65100
-    style C fill:#e1bee7,stroke:#7b1fa2,stroke-width:2px,color:#4a148c
-    style D fill:#c8e6c9,stroke:#388e3c,stroke-width:2px,color:#1b5e20
-    style E fill:#c8e6c9,stroke:#388e3c,stroke-width:2px,color:#1b5e20
-    style F fill:#c8e6c9,stroke:#388e3c,stroke-width:2px,color:#1b5e20
-    style G fill:#c8e6c9,stroke:#388e3c,stroke-width:2px,color:#1b5e20
-    style H fill:#c8e6c9,stroke:#388e3c,stroke-width:2px,color:#1b5e20
-    style I fill:#c8e6c9,stroke:#388e3c,stroke-width:2px,color:#1b5e20
-    style J fill:#f8bbd9,stroke:#c2185b,stroke-width:2px,color:#880e4f
+    style PG fill:#BBDEFB,stroke:#1565C0,stroke-width:2px
+    style XGB fill:#FFE0B2,stroke:#E65100,stroke-width:2px
+    style AGENT_CORE fill:#E1BEE7,stroke:#6A1B9A,stroke-width:2px
+    style RAG fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px
+    style PROFILE fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px
+    style MSG fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px
+    style COMP fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px
+    style ROUTER fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px
+    style TRACK fill:#C8E6C9,stroke:#2E7D32,stroke-width:2px
+    style REDIS fill:#F8BBD0,stroke:#AD1457,stroke-width:2px
 ```
 
 ### Agent Workflow Flow
 
 ```mermaid
-graph LR
-    subgraph Workflow["🔄 AGENT WORKFLOW PIPELINE"]
-        A[["📚 Step 1<br/><b>RAG Lookup</b><br/>Retrieve Product Info"]]
-        B[["👤 Step 2<br/><b>Profile Fetcher</b><br/>Get Customer Data"]]
-        C[["💬 Step 3<br/><b>Message Generator</b><br/>Create Personalized Message"]]
-        D{["✅ Step 4<br/><b>Compliance Check</b><br/>Validate Regulatory Rules"]}
-        E[["📱 Step 5<br/><b>Channel Router</b><br/>Route to WhatsApp/YONO"]]
-        F[["📈 Step 6<br/><b>Feedback Tracker</b><br/>Log Nudge Outcome"]]
-        G[["📨 Step 7<br/><b>Redis Queue</b><br/>Queue for Delivery"]]
-    end
+flowchart LR
+    A["1. RAG Lookup"] --> B["2. Profile Fetcher"]
+    B --> C["3. Message Generator"]
+    C --> D{"4. Compliance Check"}
+    D -->|Pass| E["5. Channel Router"]
+    D -->|Fail| C
+    E --> F["6. Feedback Tracker"]
+    F --> G["7. Redis Queue"]
     
-    A --> B
-    B --> C
-    C --> D
-    D -->|✅ PASS| E
-    D -->|❌ FAIL| C
-    E --> F
-    F --> G
-    
-    style Workflow fill:#fafafa,stroke:#333,stroke-width:2px
-    
-    style A fill:#4CAF50,stroke:#2E7D32,stroke-width:3px,color:#white,font-weight:bold
-    style B fill:#2196F3,stroke:#1565C0,stroke-width:3px,color:#white,font-weight:bold
-    style C fill:#FF9800,stroke:#E65100,stroke-width:3px,color:#white,font-weight:bold
-    style D fill:#9C27B0,stroke:#6A1B9A,stroke-width:3px,color:#white,font-weight:bold
-    style E fill:#00BCD4,stroke:#00838F,stroke-width:3px,color:#white,font-weight:bold
-    style F fill:#795548,stroke:#4E342E,stroke-width:3px,color:#white,font-weight:bold
-    style G fill:#607D8B,stroke:#37474F,stroke-width:3px,color:#white,font-weight:bold
-    
-    linkStyle default stroke-width:2px,fill:none,stroke:#333
+    style A fill:#4CAF50,stroke:#1B5E20,stroke-width:3px,color:#fff
+    style B fill:#2196F3,stroke:#0D47A1,stroke-width:3px,color:#fff
+    style C fill:#FF9800,stroke:#E65100,stroke-width:3px,color:#fff
+    style D fill:#9C27B0,stroke:#4A148C,stroke-width:3px,color:#fff
+    style E fill:#00BCD4,stroke:#006064,stroke-width:3px,color:#fff
+    style F fill:#795548,stroke:#3E2723,stroke-width:3px,color:#fff
+    style G fill:#607D8B,stroke:#263238,stroke-width:3px,color:#fff
 ```
 
 </div>
